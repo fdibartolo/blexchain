@@ -7,5 +7,7 @@ defmodule Blexchain.Router do
 
   scope "/api", Blexchain do
     pipe_through :api
+
+    resources "/about", AboutController, only: [:index]
   end
 end
