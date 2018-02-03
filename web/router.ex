@@ -5,7 +5,7 @@ defmodule Blexchain.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", Blexchain do
+  scope "/", Blexchain do
     pipe_through :api
 
     resources "/about", AboutController, only: [:index]
