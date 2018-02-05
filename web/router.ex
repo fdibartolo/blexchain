@@ -9,5 +9,6 @@ defmodule Blexchain.Router do
     pipe_through :api
 
     resources "/about", AboutController, only: [:index]
+    resources "/users", UsersController, only: [:create]
   end
 end
