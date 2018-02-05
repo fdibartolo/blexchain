@@ -12,6 +12,9 @@ defmodule Blexchain do
       supervisor(Blexchain.Endpoint, []),
       # Start your own worker by calling: Blexchain.Worker.start_link(arg1, arg2, arg3)
       # worker(Blexchain.Worker, [arg1, arg2, arg3]),
+
+      # create in-memory storage to keep user balances
+      supervisor(ConCache, [[], [name: :balances]])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
