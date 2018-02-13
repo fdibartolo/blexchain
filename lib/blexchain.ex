@@ -21,6 +21,8 @@ defmodule Blexchain do
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Blexchain.Supervisor]
     Supervisor.start_link(children, opts)
+
+    ConCache.put(:balances, "genesis", 1_000_000)
   end
 
   # Tell Phoenix to update the endpoint configuration

@@ -10,5 +10,6 @@ defmodule Blexchain.Router do
 
     resources "/about", AboutController, only: [:index]
     resources "/users", UsersController, only: [:create]
+    post "/transfer", UsersController, :transfer, as: :transfer
   end
 end
