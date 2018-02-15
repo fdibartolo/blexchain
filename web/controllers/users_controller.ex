@@ -11,12 +11,11 @@ defmodule Blexchain.UsersController do
   end
 
   def transfer(conn, %{"from" => from, "to" => to, "amount" => amount}) do
-    # TODO: return proper status codes
     cond do
-      amount <= 0 -> json conn, "Cannot transfer this amount; it must be greater than 0"
-      ConCache.get(:balances, from) == nil -> json conn, "#{from} doesnt exist"
-      ConCache.get(:balances, to) == nil -> json conn, "#{to} doesnt exist"
-      ConCache.get(:balances, from) < amount -> json conn, "#{from} has insuficient funds to make the transfer"
+      amount <= 0 -> json (conn |> put_status(400)), "Cannot transfer this amount; it must be greater than 0"
+      ConCache.get(:balances, from) == nil -> json (conn |> put_status(400)), "#{from} doesnt exist"
+      ConCache.get(:balances, to) == nil -> json (conn |> put_status(400)), "#{to} doesnt exist"
+      ConCache.get(:balances, from) < amount -> json (conn |> put_status(400)), "#{from} has insuficient funds to make the transfer"
       true -> do_transfer(from, to, amount); json conn, "Transfered #{amount} from #{from} to #{to} OK!"
     end
   end
