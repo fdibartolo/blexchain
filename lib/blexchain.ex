@@ -20,9 +20,10 @@ defmodule Blexchain do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Blexchain.Supervisor]
-    Supervisor.start_link(children, opts)
+    start_status = Supervisor.start_link(children, opts)
 
     ConCache.put(:balances, "genesis", 1_000_000)
+    start_status
   end
 
   # Tell Phoenix to update the endpoint configuration
