@@ -6,6 +6,8 @@ defmodule Blexchain do
   def start(_type, _args) do
     import Supervisor.Spec
 
+    if System.get_env("PORT") == nil, do: IO.puts "Env var PORT is not set!"
+
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
