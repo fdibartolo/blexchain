@@ -19,7 +19,7 @@ defmodule Blexchain.Mixfile do
   def application do
     [
       mod: {Blexchain, []},
-      extra_applications: [:logger, :con_cache]
+      extra_applications: [:logger, :con_cache, :httpotion]
     ]
   end
 
@@ -36,7 +36,8 @@ defmodule Blexchain.Mixfile do
       {:phoenix_pubsub, "~> 1.0"},
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
-      {:con_cache, "~> 0.12.1"}
+      {:con_cache, "~> 0.12.1"},
+      {:httpotion, "~> 3.1.0"}
     ]
   end
 end
