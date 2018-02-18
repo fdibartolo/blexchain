@@ -6,7 +6,7 @@ defmodule Blexchain do
   def start(_type, _args) do
     import Supervisor.Spec
 
-    if System.get_env("PORT") == nil, do: IO.puts "Env var PORT is not set!"
+    if System.get_env("PORT") == nil, do: IO.puts "PORT is not set! Do so at start up via 'PORT=4000 mix phx.server'"
 
     # Define workers and child supervisors to be supervised
     children = [
@@ -16,7 +16,13 @@ defmodule Blexchain do
       # worker(Blexchain.Worker, [arg1, arg2, arg3]),
 
       # create in-memory storage to keep user balances
-      supervisor(ConCache, [[], [name: :balances]])
+      # supervisor(ConCache, [[], [name: :balances]]),
+      
+      # create in-memory storage to keep peer ports within the network
+      supervisor(ConCache, [[], [name: :nodes]]),
+
+      # schedule sync up nodes
+      worker(Blexchain.Scheduler, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
@@ -24,7 +30,17 @@ defmodule Blexchain do
     opts = [strategy: :one_for_one, name: Blexchain.Supervisor]
     start_status = Supervisor.start_link(children, opts)
 
-    ConCache.put(:balances, "genesis", 1_000_000)
+    # ConCache.put(:balances, "genesis", 1_000_000)
+
+    ConCache.put(:nodes, :ports, [System.get_env("PORT")])
+
+    unless System.get_env("PEER") == nil do
+      ConCache.update(:nodes, :ports, fn(p) ->
+        ports = p |> List.insert_at(-1, System.get_env("PEER"))
+        {:ok, ports}
+      end)
+    end
+
     start_status
   end
 

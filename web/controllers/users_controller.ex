@@ -10,6 +10,16 @@ defmodule Blexchain.UsersController do
     end
   end
 
+  def gossip(conn, %{"peers" => p}) do
+    peer_ports = ConCache.get(:nodes, :ports) ++ p
+      |> Enum.uniq
+
+    case ConCache.put(:nodes, :ports, peer_ports) do
+      :ok -> json conn, %{peers: peer_ports}
+      _ -> json conn, "Something went wrong!"
+    end
+  end
+
   def transfer(conn, %{"from" => from, "to" => to, "amount" => amount}) do
     cond do
       amount <= 0 -> json (conn |> put_status(400)), "Cannot transfer this amount; it must be greater than 0"
