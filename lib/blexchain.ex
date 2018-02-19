@@ -14,9 +14,6 @@ defmodule Blexchain do
       supervisor(Blexchain.Endpoint, []),
       # Start your own worker by calling: Blexchain.Worker.start_link(arg1, arg2, arg3)
       # worker(Blexchain.Worker, [arg1, arg2, arg3]),
-
-      # create in-memory storage to keep user balances
-      # supervisor(ConCache, [[], [name: :balances]]),
       
       # create in-memory storage to keep peer ports within the network
       supervisor(ConCache, [[], [name: :blockchain]]),
@@ -30,18 +27,13 @@ defmodule Blexchain do
     opts = [strategy: :one_for_one, name: Blexchain.Supervisor]
     start_status = Supervisor.start_link(children, opts)
 
-    # ConCache.put(:balances, "genesis", 1_000_000)
-
     ConCache.put(:blockchain, :ports, [System.get_env("PORT")])
 
     if System.get_env("PEER") == nil do
       # create genesis block
       ConCache.put(:blockchain, :blocks, [%{from: nil, to: System.get_env("PORT"), amount: 500_000}])
     else
-      ConCache.update(:blockchain, :ports, fn(p) ->
-        ports = p |> List.insert_at(-1, System.get_env("PEER"))
-        {:ok, ports}
-      end)
+      ConCache.put(:blockchain, :ports, [System.get_env("PORT"), System.get_env("PEER")])
     end
 
     start_status
