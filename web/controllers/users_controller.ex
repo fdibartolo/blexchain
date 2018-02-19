@@ -1,15 +1,6 @@
 defmodule Blexchain.UsersController do
   use Blexchain.Web, :controller
 
-  def create(conn, %{"user" => u}) do
-    user = u |> String.downcase
-    # TODO: check if user exists first
-    case ConCache.put(:balances, user, 0) do
-      :ok -> json conn, "User #{user} created OK!"
-      _ -> json conn, "Something went wrong!"
-    end
-  end
-
   def gossip(conn, %{"peers" => p, "blockchain" => b}) do
     peer_ports = ConCache.get(:blockchain, :ports) ++ p
       |> Enum.uniq

@@ -15,7 +15,7 @@ defmodule Blexchain do
       # Start your own worker by calling: Blexchain.Worker.start_link(arg1, arg2, arg3)
       # worker(Blexchain.Worker, [arg1, arg2, arg3]),
       
-      # create in-memory storage to keep peer ports within the network
+      # create in-memory storage to keep peer ports and blocks within the network
       supervisor(ConCache, [[], [name: :blockchain]]),
 
       # schedule sync up nodes
