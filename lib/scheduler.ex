@@ -12,23 +12,25 @@ defmodule Blexchain.Scheduler do
   end
 
   def handle_info(:work, state) do
-    ConCache.get(:nodes, :ports)
+    ConCache.get(:blockchain, :ports)
       |> List.delete(System.get_env("PORT"))
-      |> Enum.each(fn(p) -> Blexchain.Client.gossip_nodes(p, ConCache.get(:nodes, :ports)) end)
+      |> Enum.each(fn(p) -> Blexchain.Client.gossip_with_peer(p, ConCache.get(:blockchain, :ports), ConCache.get(:blockchain, :blocks)) end)
 
-    render_state()
+    render_state(ConCache.get(:blockchain, :ports), ConCache.get(:blockchain, :blocks))
     schedule_work() # Reschedule once again
     {:noreply, state}
   end
 
-  defp schedule_work() do
-    # Process.send_after(self(), :work, 2 * 60 * 60 * 1000) # In 2 hours
-    Process.send_after(self(), :work, 3 * 1000) # In 3 sec
-  end
+  defp schedule_work(), do: Process.send_after(self(), :work, 5 * 1000) # 5 secs
 
-  defp render_state() do
-    IO.puts "#{reset()} My Port: #{yellow()}#{System.get_env("PORT")}"
-    peers = ConCache.get(:nodes, :ports) |> Enum.join(" - ")
-    IO.puts "#{reset()} My Peers: #{green()}#{peers}"
+  defp render_state(_, nil), do: IO.puts "#{yellow()}#{italic()}syncing...#{reset()}"
+  defp render_state(peers, blockchain) do
+    IO.puts "-> My Port: #{yellow()}#{System.get_env("PORT")}#{reset()}"
+    my_peers = peers |> Enum.join(" - ")
+    IO.puts "-> My Peers: #{green()}#{my_peers}#{reset()}"
+    blocks = blockchain
+      |> Enum.map(fn(b) -> "From: #{b.from} - To: #{b.to} - Amount: #{b.amount}" end)
+      |> Enum.join("\n")
+    IO.puts "-> My Blockchain: #{magenta()}#{blocks}#{reset()}"
   end
 end

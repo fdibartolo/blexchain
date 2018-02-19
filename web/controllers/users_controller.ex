@@ -10,13 +10,32 @@ defmodule Blexchain.UsersController do
     end
   end
 
-  def gossip(conn, %{"peers" => p}) do
-    peer_ports = ConCache.get(:nodes, :ports) ++ p
+  def gossip(conn, %{"peers" => p, "blockchain" => b}) do
+    peer_ports = ConCache.get(:blockchain, :ports) ++ p
       |> Enum.uniq
 
-    case ConCache.put(:nodes, :ports, peer_ports) do
-      :ok -> json conn, %{peers: peer_ports}
-      _ -> json conn, "Something went wrong!"
+    # if newer_blockchain?(blockchain), do: ConCache.put(:blockchain, :blocks, blockchain)
+    case newer_blockchain?(b) do 
+      {true, value} -> ConCache.put(:blockchain, :blocks, value)
+      {false, _} -> IO.puts "blockchain up to date"
+    end
+
+    case ConCache.put(:blockchain, :ports, peer_ports) do
+      :ok -> json conn, "Ok!"
+      _ -> json (conn |> put_status(500)), "Something went wrong!"
+    end
+  end
+
+  defp newer_blockchain?(blockchain) when blockchain == nil, do: {false, nil}
+  defp newer_blockchain?(blockchain) do
+    parsed = blockchain
+      |> Poison.encode!
+      |> Poison.Parser.parse!(keys: :atoms!)
+
+    cond do
+      ConCache.get(:blockchain, :blocks) == nil -> {true, parsed}
+      ConCache.get(:blockchain, :blocks) == parsed -> {false, nil}
+      true -> {parsed.length > ConCache.get(:blockchain, :blocks).length, parsed}
     end
   end
 

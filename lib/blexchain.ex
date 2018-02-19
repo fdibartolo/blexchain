@@ -19,7 +19,7 @@ defmodule Blexchain do
       # supervisor(ConCache, [[], [name: :balances]]),
       
       # create in-memory storage to keep peer ports within the network
-      supervisor(ConCache, [[], [name: :nodes]]),
+      supervisor(ConCache, [[], [name: :blockchain]]),
 
       # schedule sync up nodes
       worker(Blexchain.Scheduler, [])
@@ -32,10 +32,13 @@ defmodule Blexchain do
 
     # ConCache.put(:balances, "genesis", 1_000_000)
 
-    ConCache.put(:nodes, :ports, [System.get_env("PORT")])
+    ConCache.put(:blockchain, :ports, [System.get_env("PORT")])
 
-    unless System.get_env("PEER") == nil do
-      ConCache.update(:nodes, :ports, fn(p) ->
+    if System.get_env("PEER") == nil do
+      # create genesis block
+      ConCache.put(:blockchain, :blocks, [%{from: nil, to: System.get_env("PORT"), amount: 500_000}])
+    else
+      ConCache.update(:blockchain, :ports, fn(p) ->
         ports = p |> List.insert_at(-1, System.get_env("PEER"))
         {:ok, ports}
       end)
