@@ -21,7 +21,7 @@ defmodule Blexchain.GossipScheduler do
     {:noreply, state}
   end
 
-  defp schedule_work(), do: Process.send_after(self(), :work, 5 * 1000) # 5 secs
+  defp schedule_work(), do: Process.send_after(self(), :work, 10 * 1000) # 10 secs
 
   defp render_state(_, nil), do: IO.puts "#{yellow()}#{italic()}syncing...#{reset()}"
   defp render_state(peers, blockchain) do
