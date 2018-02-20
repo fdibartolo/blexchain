@@ -7,7 +7,7 @@ defmodule Blexchain.UsersController do
 
     case newer_blockchain?(b) do 
       {true, value} -> ConCache.put(:blockchain, :blocks, value)
-      {false, _} -> IO.puts "blockchain up to date"
+      {false, _} -> "Blockchain up to date"
     end
 
     case ConCache.put(:blockchain, :ports, peer_ports) do

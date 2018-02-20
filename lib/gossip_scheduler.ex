@@ -7,7 +7,7 @@ defmodule Blexchain.GossipScheduler do
   end
 
   def init(state) do
-    schedule_work()
+    if Mix.env != :test, do: schedule_work() 
     {:ok, state}
   end
 
@@ -21,15 +21,15 @@ defmodule Blexchain.GossipScheduler do
     {:noreply, state}
   end
 
-  defp schedule_work(), do: Process.send_after(self(), :work, 10 * 1000) # 10 secs
+  defp schedule_work(), do: Process.send_after(self(), :work, 15 * 1000) # 15 secs
 
-  defp render_state(_, nil), do: IO.puts "#{yellow()}#{italic()}syncing...#{reset()}"
+  defp render_state(_, nil), do: IO.puts "#{yellow()}#{italic()}Waiting to sync node...#{reset()}"
   defp render_state(peers, blockchain) do
     IO.puts "-> My Port: #{yellow()}#{System.get_env("PORT")}#{reset()}"
     my_peers = peers |> Enum.join(" - ")
     IO.puts "-> My Peers: #{green()}#{my_peers}#{reset()}"
     blocks = blockchain
-      |> Enum.map(fn(b) -> "From: #{b.from} - To: #{b.to} - Amount: #{b.amount}" end)
+      |> Enum.map(fn(b) -> "Id: #{b.id} - Prev: #{b.prev_block_hash} - From: #{b.from} -> #{b.to} - Amount: #{b.amount} - Own: #{b.own_hash}" end)
       |> Enum.join("\n")
     IO.puts "-> My Blockchain: #{magenta()}#{blocks}#{reset()}"
   end

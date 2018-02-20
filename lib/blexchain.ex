@@ -1,6 +1,15 @@
 defmodule Blexchain do
   use Application
 
+  @genesis_block %{
+    id: UUID.uuid1(),
+    prev_block_hash: nil, 
+    from: :genesis, 
+    to: System.get_env("PORT"), 
+    amount: 500_000,
+    own_hash: nil
+  }
+
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
@@ -19,7 +28,10 @@ defmodule Blexchain do
       supervisor(ConCache, [[], [name: :blockchain]]),
 
       # schedule sync up nodes
-      worker(Blexchain.GossipScheduler, [])
+      worker(Blexchain.GossipScheduler, []),
+
+      # schedule mine own blocks
+      worker(Blexchain.MineScheduler, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
@@ -31,7 +43,7 @@ defmodule Blexchain do
 
     if System.get_env("PEER") == nil do
       # create genesis block
-      ConCache.put(:blockchain, :blocks, [%{from: nil, to: System.get_env("PORT"), amount: 500_000}])
+      ConCache.put(:blockchain, :blocks, [@genesis_block])
     else
       ConCache.put(:blockchain, :ports, [System.get_env("PORT"), System.get_env("PEER")])
     end
