@@ -41,6 +41,7 @@ defmodule Blexchain.UsersController do
   defp peer_exist?(peer), do: ConCache.get(:blockchain, :ports) |> Enum.member?(peer) |> (&not(&1)).()
 
   defp add_block_to_chain(from, to, amount) do
+    #TODO: prev block could have not been mined yet, in which case transaction should be queued or rejected
     prev_block = ConCache.get(:blockchain, :blocks) |> List.last
     ConCache.update(:blockchain, :blocks, fn(b) ->
       block = %{
