@@ -1,4 +1,4 @@
-defmodule Blexchain.Scheduler do
+defmodule Blexchain.GossipScheduler do
   use GenServer
   import IO.ANSI
 

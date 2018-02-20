@@ -19,7 +19,7 @@ defmodule Blexchain do
       supervisor(ConCache, [[], [name: :blockchain]]),
 
       # schedule sync up nodes
-      worker(Blexchain.Scheduler, [])
+      worker(Blexchain.GossipScheduler, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
