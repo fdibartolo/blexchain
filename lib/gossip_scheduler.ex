@@ -29,8 +29,8 @@ defmodule Blexchain.GossipScheduler do
     my_peers = peers |> Enum.join(" - ")
     IO.puts "-> My Peers: #{green()}#{my_peers}#{reset()}"
     blocks = blockchain
-      |> Enum.map(fn(b) -> "Id: #{b.id} - Prev: #{b.prev_block_hash} - From: #{b.from} -> #{b.to} - Amount: #{b.amount} - Own: #{b.own_hash}" end)
-      |> Enum.join("\n")
+      |> Enum.map(fn(b) -> "\nPrev: #{b.prev_block_hash}\nId:   #{b.id}\nFrom: #{b.from} -> #{b.to} | Amount: #{b.amount}\nOwn:  #{b.own_hash}" end)
+      |> Enum.join("\n----------------------------------------------------------------------")
     IO.puts "-> My Blockchain: #{magenta()}#{blocks}#{reset()}"
   end
 end
