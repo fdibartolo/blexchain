@@ -5,7 +5,6 @@ defmodule Blexchain.UsersController do
     peer_ports = ConCache.get(:blockchain, :ports) ++ p
       |> Enum.uniq
 
-    # if newer_blockchain?(blockchain), do: ConCache.put(:blockchain, :blocks, blockchain)
     case newer_blockchain?(b) do 
       {true, value} -> ConCache.put(:blockchain, :blocks, value)
       {false, _} -> IO.puts "blockchain up to date"
