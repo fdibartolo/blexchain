@@ -41,8 +41,18 @@ defmodule Blexchain.UsersController do
   defp peer_exist?(peer), do: ConCache.get(:blockchain, :ports) |> Enum.member?(peer) |> (&not(&1)).()
 
   defp add_block_to_chain(from, to, amount) do
+    prev_block = ConCache.get(:blockchain, :blocks) |> List.last
     ConCache.update(:blockchain, :blocks, fn(b) ->
-      blocks = b |> List.insert_at(-1, %{from: from, to: to, amount: amount})
+      block = %{
+        id: UUID.uuid1(),
+        prev_block_hash: prev_block.own_hash,
+        from: from,
+        to: to,
+        amount: amount,
+        own_hash: nil
+      }
+
+      blocks = b |> List.insert_at(-1, block)
       {:ok, blocks}
     end)
   end
