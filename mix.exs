@@ -37,7 +37,8 @@ defmodule Blexchain.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:con_cache, "~> 0.12.1"},
-      {:httpotion, "~> 3.1.0"}
+      {:httpotion, "~> 3.1.0"},
+      {:uuid, "~> 1.1"}
     ]
   end
 end
