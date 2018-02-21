@@ -1,18 +1,22 @@
 # Blexchain
 
-To start your Phoenix app:
+Mini blockchain implementation in Elixir
 
-  * Install dependencies with `mix deps.get`
-  * Start Phoenix endpoint with `mix phoenix.server`
+This development is inspired on Haseeb Qureshi Ruby's implementation:
+  * His talk [here](https://www.youtube.com/watch?v=3aJI1ABdjQk)
+  * His code [here](https://github.com/Haseeb-Qureshi/lets-build-a-blockchain)
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-Ready to run in production? Please [check our deployment guides](http://www.phoenixframework.org/docs/deployment).
+## As for this code
 
-## Learn more
+To start the network (genesis node), run `PORT=4000 mix phx.server`
 
-  * Official website: http://www.phoenixframework.org/
-  * Guides: http://phoenixframework.org/docs/overview
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix
+And then, to join consecutive nodes to the network, a peer port needs to be specified, i.e.
+
+`PORT=4001 PEER=4000 mix phx.server`
+`PORT=4002 PEER=4001 mix phx.server`
+`PORT=4003 PEER=4000 mix phx.server`
+
+`PEER` can be __any__ port already existing in the network.
+
+Test suite run via `mix test`
