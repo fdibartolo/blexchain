@@ -39,14 +39,7 @@ defmodule Blexchain do
     opts = [strategy: :one_for_one, name: Blexchain.Supervisor]
     start_status = Supervisor.start_link(children, opts)
 
-    ConCache.put(:blockchain, :ports, [System.get_env("PORT")])
-
-    if System.get_env("PEER") == nil do
-      # create genesis block
-      ConCache.put(:blockchain, :blocks, [@genesis_block])
-    else
-      ConCache.put(:blockchain, :ports, [System.get_env("PORT"), System.get_env("PEER")])
-    end
+    initialize_cache()
 
     start_status
   end
@@ -56,5 +49,21 @@ defmodule Blexchain do
   def config_change(changed, _new, removed) do
     Blexchain.Endpoint.config_change(changed, removed)
     :ok
+  end
+
+  defp initialize_cache do
+    ConCache.put(:blockchain, :ports, [System.get_env("PORT")])
+
+    if System.get_env("PEER") == nil do
+      # create genesis block
+      ConCache.put(:blockchain, :blocks, [@genesis_block])
+    else
+      ConCache.put(:blockchain, :ports, [System.get_env("PORT"), System.get_env("PEER")])
+    end
+
+    # generate keys for further signatures
+    {private_key, public_key} = Blexchain.RSA.generate_key_pair
+    ConCache.put(:blockchain, :public_key, public_key)
+    ConCache.put(:blockchain, :private_key, private_key)
   end
 end
