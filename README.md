@@ -13,9 +13,11 @@ To start the network (genesis node), run `PORT=4000 mix phx.server`
 
 And then, to join consecutive nodes to the network, a peer port needs to be specified, i.e.
 
-`PORT=4001 PEER=4000 mix phx.server`
-`PORT=4002 PEER=4001 mix phx.server`
-`PORT=4003 PEER=4000 mix phx.server`
+  `PORT=4001 PEER=4000 mix phx.server`
+
+  `PORT=4002 PEER=4001 mix phx.server`
+
+  `PORT=4003 PEER=4000 mix phx.server`
 
 `PEER` can be __any__ port already existing in the network.
 
