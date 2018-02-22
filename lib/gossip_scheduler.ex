@@ -2,6 +2,8 @@ defmodule Blexchain.GossipScheduler do
   use GenServer
   import IO.ANSI
 
+  @http_client Application.get_env(:blexchain, :http_client)
+
   def start_link do
     GenServer.start_link(__MODULE__, %{})
   end
@@ -17,7 +19,7 @@ defmodule Blexchain.GossipScheduler do
     # 2 - give every node the chance to mine unmined blocks, and use a timestamp to declare the winner
     ConCache.get(:blockchain, :ports)
       |> List.delete(System.get_env("PORT"))
-      |> Enum.each(fn(p) -> Blexchain.Client.gossip_with_peer(p, ConCache.get(:blockchain, :ports), ConCache.get(:blockchain, :blocks)) end)
+      |> Enum.each(fn(p) -> @http_client.gossip_with_peer(p, ConCache.get(:blockchain, :ports), ConCache.get(:blockchain, :blocks)) end)
 
     render_state(ConCache.get(:blockchain, :ports), ConCache.get(:blockchain, :blocks))
     schedule_work() # Reschedule once again

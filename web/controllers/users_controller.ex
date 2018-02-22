@@ -1,6 +1,8 @@
 defmodule Blexchain.UsersController do
   use Blexchain.Web, :controller
 
+  @http_client Application.get_env(:blexchain, :http_client)
+
   def gossip(conn, %{"peers" => p, "blockchain" => b}) do
     peer_ports = ConCache.get(:blockchain, :ports) ++ p
       |> Enum.uniq
@@ -48,8 +50,8 @@ defmodule Blexchain.UsersController do
     public_key = ConCache.get(:blockchain, :public_key)
     private_key = ConCache.get(:blockchain, :private_key)
 
-    #TODO: 'to' should be peer port pub key
-    trx = Blexchain.Blockchain.hashed_transaction_for(%{from: public_key, amount: amount}, to)
+    peer_public_key = @http_client.public_key_of(to)
+    trx = Blexchain.Blockchain.hashed_transaction_for(%{from: public_key, amount: amount}, peer_public_key)
     signature = trx |> Blexchain.RSA.sign(private_key)
 
     ConCache.update(:blockchain, :blocks, fn(b) ->
@@ -57,7 +59,7 @@ defmodule Blexchain.UsersController do
         id: UUID.uuid1(),
         prev_block_hash: prev_block.own_hash,
         from: public_key,
-        to: to,
+        to: peer_public_key,
         amount: amount,
         transaction: trx,
         signature: signature,
