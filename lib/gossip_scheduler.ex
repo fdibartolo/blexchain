@@ -14,17 +14,18 @@ defmodule Blexchain.GossipScheduler do
   end
 
   def handle_info(:work, state) do
-    #TODO: pick from these 2 options:
-    # 1 - gossip only mined blocks (avoid dual mining), OR
-    # 2 - give every node the chance to mine unmined blocks, and use a timestamp to declare the winner
+    mined_blocks = get_mined_blocks ConCache.get(:blockchain, :blocks)
     ConCache.get(:blockchain, :ports)
       |> List.delete(System.get_env("PORT"))
-      |> Enum.each(fn(p) -> @http_client.gossip_with_peer(p, ConCache.get(:blockchain, :ports), ConCache.get(:blockchain, :blocks)) end)
+      |> Enum.each(fn(p) -> @http_client.gossip_with_peer(p, ConCache.get(:blockchain, :ports), mined_blocks) end)
 
     render_state(ConCache.get(:blockchain, :ports), ConCache.get(:blockchain, :blocks))
     schedule_work() # Reschedule once again
     {:noreply, state}
   end
+
+  defp get_mined_blocks(nil), do: []
+  defp get_mined_blocks(blockchain), do: blockchain |> Enum.filter(fn(b) -> b.own_hash != nil end)
 
   defp schedule_work(), do: Process.send_after(self(), :work, 15 * 1000) # 15 secs
 
@@ -35,7 +36,7 @@ defmodule Blexchain.GossipScheduler do
     IO.puts "-> My Peers: #{green()}#{my_peers}#{reset()}"
     blocks = blockchain
       |> Enum.map(fn(b) -> "#{magenta()}\n     Prev: #{b.prev_block_hash}\n       Id: #{b.id}\n      Trx: #{b.transaction}\n      Own: #{b.own_hash}" end)
-      |> Enum.join("#{reset()}\n     ----------------------------------------------------------------------")
+      |> Enum.join("#{reset()}\n     ----------------------------------↓↓----------------------------------")
     IO.puts "-> My Blockchain: #{blocks}#{reset()}"
   end
 end
