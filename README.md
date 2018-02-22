@@ -1,4 +1,5 @@
 # Blexchain
+[![Build Status](https://travis-ci.org/fdibartolo/blexchain.svg?branch=master)](https://travis-ci.org/fdibartolo/blexchain)
 
 Mini blockchain implementation in Elixir
 
@@ -9,7 +10,9 @@ This development is inspired on Haseeb Qureshi Ruby's implementation:
 
 ## As for this code
 
-To start the network (genesis node), run `PORT=4000 mix phx.server`
+To start the network (genesis node), specify the `PORT` it will be listening on, i.e.
+
+`PORT=4000 mix phx.server`
 
 And then, to join consecutive nodes to the network, a peer port needs to be specified, i.e.
 
@@ -21,4 +24,4 @@ And then, to join consecutive nodes to the network, a peer port needs to be spec
 
 `PEER` can be __any__ port already existing in the network.
 
-Test suite run via `mix test`
+To run the test suite locally, do so via `mix test`
