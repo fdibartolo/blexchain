@@ -68,4 +68,12 @@ defmodule Blexchain.UsersController do
       {:ok, blocks}
     end)
   end
+
+  def public_key(conn, %{}) do
+    {status, value} = get_key ConCache.get(:blockchain, :public_key)
+    json (conn|> put_status(status)), value 
+  end
+
+  defp get_key(nil), do: {422, "public key not set"}
+  defp get_key(value), do: {200, value}
 end

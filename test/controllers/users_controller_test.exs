@@ -44,4 +44,18 @@ defmodule Blexchain.UsersControllerTest do
       assert new_block.prev_block_hash == "ABCD"
     end
   end
+
+  describe "public_key" do
+    test "return 422 when key is not present in cache", %{conn: conn} do
+      ConCache.put(:blockchain, :public_key, nil)
+      conn = get conn, public_key_path(conn, :public_key)
+      assert json_response(conn, 422) |> String.starts_with?("public key not set")
+    end
+
+    test "return the key value when it exists in cache", %{conn: conn} do
+      ConCache.put(:blockchain, :public_key, "my public key")
+      conn = get conn, public_key_path(conn, :public_key)
+      assert json_response(conn, 200) |> String.starts_with?("my public key")
+    end
+  end
 end
