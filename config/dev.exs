@@ -26,6 +26,8 @@ config :blexchain, Blexchain.Endpoint,
   check_origin: false,
   watchers: []
 
+# 'Inject' real http client
+config :blexchain, http_client: Blexchain.Client
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
