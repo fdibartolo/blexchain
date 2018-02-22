@@ -5,8 +5,10 @@ defmodule Blexchain do
     id: UUID.uuid1(),
     prev_block_hash: nil, 
     from: :genesis, 
-    to: System.get_env("PORT"), 
+    to: nil, 
     amount: 500_000,
+    transaction: nil,
+    signature: nil,
     own_hash: nil
   }
 
@@ -52,18 +54,24 @@ defmodule Blexchain do
   end
 
   defp initialize_cache do
-    ConCache.put(:blockchain, :ports, [System.get_env("PORT")])
-
-    if System.get_env("PEER") == nil do
-      # create genesis block
-      ConCache.put(:blockchain, :blocks, [@genesis_block])
-    else
-      ConCache.put(:blockchain, :ports, [System.get_env("PORT"), System.get_env("PEER")])
-    end
-
-    # generate keys for further signatures
     {private_key, public_key} = Blexchain.RSA.generate_key_pair
     ConCache.put(:blockchain, :public_key, public_key)
     ConCache.put(:blockchain, :private_key, private_key)
+
+    if System.get_env("PEER") == nil do
+      # create genesis block
+      trx = Blexchain.Blockchain.hashed_transaction_for(@genesis_block, public_key)
+      signature = trx |> Blexchain.RSA.sign(private_key)
+
+      block = @genesis_block
+        |> Map.update!(:to, fn(_) -> public_key end)
+        |> Map.update!(:transaction, fn(_) -> trx end)
+        |> Map.update!(:signature, fn(_) -> signature end)
+      ConCache.put(:blockchain, :blocks, [block])
+
+      ConCache.put(:blockchain, :ports, [System.get_env("PORT")])
+    else
+      ConCache.put(:blockchain, :ports, [System.get_env("PORT"), System.get_env("PEER")])
+    end
   end
 end

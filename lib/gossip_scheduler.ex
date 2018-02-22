@@ -12,6 +12,9 @@ defmodule Blexchain.GossipScheduler do
   end
 
   def handle_info(:work, state) do
+    #TODO: pick from these 2 options:
+    # 1 - gossip only mined blocks (avoid dual mining), OR
+    # 2 - give every node the chance to mine unmined blocks, and use a timestamp to declare the winner
     ConCache.get(:blockchain, :ports)
       |> List.delete(System.get_env("PORT"))
       |> Enum.each(fn(p) -> Blexchain.Client.gossip_with_peer(p, ConCache.get(:blockchain, :ports), ConCache.get(:blockchain, :blocks)) end)
@@ -29,8 +32,8 @@ defmodule Blexchain.GossipScheduler do
     my_peers = peers |> Enum.join(" - ")
     IO.puts "-> My Peers: #{green()}#{my_peers}#{reset()}"
     blocks = blockchain
-      |> Enum.map(fn(b) -> "\nPrev: #{b.prev_block_hash}\nId:   #{b.id}\nFrom: #{b.from} -> #{b.to} | Amount: #{b.amount}\nOwn:  #{b.own_hash}" end)
-      |> Enum.join("\n----------------------------------------------------------------------")
-    IO.puts "-> My Blockchain: #{magenta()}#{blocks}#{reset()}"
+      |> Enum.map(fn(b) -> "#{magenta()}\n     Prev: #{b.prev_block_hash}\n       Id: #{b.id}\n      Trx: #{b.transaction}\n      Own: #{b.own_hash}" end)
+      |> Enum.join("#{reset()}\n     ----------------------------------------------------------------------")
+    IO.puts "-> My Blockchain: #{blocks}#{reset()}"
   end
 end

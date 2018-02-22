@@ -40,16 +40,27 @@ defmodule Blexchain.UsersController do
 
   defp peer_exist?(peer), do: ConCache.get(:blockchain, :ports) |> Enum.member?(peer) |> (&not(&1)).()
 
-  defp add_block_to_chain(from, to, amount) do
+  #TODO: remove from, since from is the api port being hit to make the transfer
+  defp add_block_to_chain(_from, to, amount) do
     #TODO: prev block could have not been mined yet, in which case transaction should be queued or rejected
     prev_block = ConCache.get(:blockchain, :blocks) |> List.last
+
+    public_key = ConCache.get(:blockchain, :public_key)
+    private_key = ConCache.get(:blockchain, :private_key)
+
+    #TODO: 'to' should be peer port pub key
+    trx = Blexchain.Blockchain.hashed_transaction_for(%{from: public_key, amount: amount}, to)
+    signature = trx |> Blexchain.RSA.sign(private_key)
+
     ConCache.update(:blockchain, :blocks, fn(b) ->
       block = %{
         id: UUID.uuid1(),
         prev_block_hash: prev_block.own_hash,
-        from: from,
+        from: public_key,
         to: to,
         amount: amount,
+        transaction: trx,
+        signature: signature,
         own_hash: nil
       }
 

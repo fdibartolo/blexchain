@@ -25,6 +25,8 @@ defmodule Blexchain.Blockchain do
       |> String.starts_with?("000")
   end
 
+  def hashed_transaction_for(%{from: from, amount: amt}, to), do: [from,amt,to] |> Enum.join |> hash
+
   defp hash(contents), do: :crypto.hash(:sha256, contents) |> Base.encode16
 
   defp next_nonce() do
