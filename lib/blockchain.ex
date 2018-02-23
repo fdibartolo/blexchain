@@ -26,8 +26,6 @@ defmodule Blexchain.Blockchain do
       |> String.starts_with?("000")
   end
 
-  def hashed_transaction_for(%{from: from, amount: amt}, to), do: [from,amt,to] |> Enum.join |> hash
-
   defp hash(contents), do: :crypto.hash(:sha256, contents) |> Base.encode16
 
   defp next_nonce() do
@@ -56,25 +54,18 @@ defmodule Blexchain.Blockchain do
   end
 
   def build_block(to, amount) do
-    public_key = ConCache.get(:blockchain, :public_key)
-    private_key = ConCache.get(:blockchain, :private_key)
-
     peer_public_key = @http_client.public_key_of(to)
-    trx = hashed_transaction_for(%{from: public_key, amount: amount}, peer_public_key)
-    signature = trx |> Blexchain.RSA.sign(private_key)
-    build_block_with(public_key, peer_public_key, amount, trx, signature)
+    build_block_with(ConCache.get(:blockchain, :public_key), peer_public_key, amount)
   end
 
   def build_genesis_block() do
-    public_key = ConCache.get(:blockchain, :public_key)
-    private_key = ConCache.get(:blockchain, :private_key)
-
-    trx = hashed_transaction_for(%{from: :genesis, amount: 500_000}, public_key)
-    signature = trx |> Blexchain.RSA.sign(private_key)
-    build_block_with(:genesis, public_key, 500_000, trx, signature)
+    build_block_with(:genesis, ConCache.get(:blockchain, :public_key), 500_000)
   end
 
-  defp build_block_with(from, to, amount, trx, signature) do
+  defp build_block_with(from, to, amount) do
+    trx = [from,to,amount] |> Enum.join |> hash
+    signature = trx |> Blexchain.RSA.sign(ConCache.get(:blockchain, :private_key))
+
     %{
       id: UUID.uuid1(), prev_block_hash: nil, from: from, to: to,
       amount: amount, transaction: trx, signature: signature, own_hash: nil
