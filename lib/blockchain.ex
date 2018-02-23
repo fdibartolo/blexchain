@@ -3,8 +3,10 @@ defmodule Blexchain.Blockchain do
   @http_client Application.get_env(:blexchain, :http_client)
 
   def mine_block!(block) do
-    {_nonce, hash} = find_nonce(block)
-    block |> Map.update!(:own_hash, fn(_) -> hash end)
+    {nonce, hash} = find_nonce(block)
+    block
+      |> Map.update!(:own_hash, fn(_) -> hash end)
+      |> Map.update!(:nonce, fn(_) -> nonce end)
   end
 
   def find_nonce(block) do
@@ -67,8 +69,8 @@ defmodule Blexchain.Blockchain do
     signature = trx |> Blexchain.RSA.sign(ConCache.get(:blockchain, :private_key))
 
     %{
-      id: UUID.uuid1(), prev_block_hash: nil, from: from, to: to,
-      amount: amount, transaction: trx, signature: signature, own_hash: nil
+      id: UUID.uuid1(), prev_block_hash: nil, from: from, to: to, amount: amount,
+      nonce: nil, transaction: trx, signature: signature, own_hash: nil
     }    
   end
 end
