@@ -4,7 +4,7 @@ defmodule Blexchain.Blockchain do
 
   def mine_block!(block) do
     {_nonce, hash} = find_nonce(block)
-    block |> Map.update(:own_hash, nil, fn(_) -> hash end)
+    block |> Map.update!(:own_hash, fn(_) -> hash end)
   end
 
   def find_nonce(block) do
@@ -40,25 +40,10 @@ defmodule Blexchain.Blockchain do
     prev_block_hash = ConCache.get(:blockchain, :blocks)
       |> List.last |> Map.fetch(:own_hash) |> elem(1)
 
-    public_key = ConCache.get(:blockchain, :public_key)
-    private_key = ConCache.get(:blockchain, :private_key)
-
-    peer_public_key = @http_client.public_key_of(to)
-    trx = hashed_transaction_for(%{from: public_key, amount: amount}, peer_public_key)
-    signature = trx |> Blexchain.RSA.sign(private_key)
+    block = build_block(to, amount)
+      |> Map.update!(:prev_block_hash, fn(_) -> prev_block_hash end)
 
     added = ConCache.update(:blockchain, :blocks, fn(b) ->
-      block = %{
-        id: UUID.uuid1(),
-        prev_block_hash: prev_block_hash,
-        from: public_key,
-        to: peer_public_key,
-        amount: amount,
-        transaction: trx,
-        signature: signature,
-        own_hash: nil
-      }
-
       blocks = b |> List.insert_at(-1, block)
       {:ok, blocks}
     end)
@@ -68,5 +53,31 @@ defmodule Blexchain.Blockchain do
       added != :ok -> {:error, 500, "Oops, something went wrong! Block could not be added to blockchain"}
       true -> {:ok, "Block added successfully. It will be mined soon to assert validity"}
     end
+  end
+
+  def build_block(to, amount) do
+    public_key = ConCache.get(:blockchain, :public_key)
+    private_key = ConCache.get(:blockchain, :private_key)
+
+    peer_public_key = @http_client.public_key_of(to)
+    trx = hashed_transaction_for(%{from: public_key, amount: amount}, peer_public_key)
+    signature = trx |> Blexchain.RSA.sign(private_key)
+    build_block_with(public_key, peer_public_key, amount, trx, signature)
+  end
+
+  def build_genesis_block() do
+    public_key = ConCache.get(:blockchain, :public_key)
+    private_key = ConCache.get(:blockchain, :private_key)
+
+    trx = hashed_transaction_for(%{from: :genesis, amount: 500_000}, public_key)
+    signature = trx |> Blexchain.RSA.sign(private_key)
+    build_block_with(:genesis, public_key, 500_000, trx, signature)
+  end
+
+  defp build_block_with(from, to, amount, trx, signature) do
+    %{
+      id: UUID.uuid1(), prev_block_hash: nil, from: from, to: to,
+      amount: amount, transaction: trx, signature: signature, own_hash: nil
+    }    
   end
 end

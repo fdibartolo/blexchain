@@ -44,4 +44,8 @@ defmodule Blexchain.BlockchainTest do
     new_block = ConCache.get(:blockchain, :blocks) |> List.last
     assert new_block.prev_block_hash == block.own_hash
   end
+
+  test "able to build genesis block" do
+    assert Blexchain.Blockchain.build_genesis_block() |> Map.fetch!(:from) == :genesis
+  end
 end

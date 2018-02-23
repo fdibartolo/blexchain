@@ -1,17 +1,6 @@
 defmodule Blexchain do
   use Application
 
-  @genesis_block %{
-    id: UUID.uuid1(),
-    prev_block_hash: nil, 
-    from: :genesis, 
-    to: nil, 
-    amount: 500_000,
-    transaction: nil,
-    signature: nil,
-    own_hash: nil
-  }
-
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
@@ -59,16 +48,7 @@ defmodule Blexchain do
     ConCache.put(:blockchain, :private_key, private_key)
 
     if System.get_env("PEER") == nil do
-      # create genesis block
-      trx = Blexchain.Blockchain.hashed_transaction_for(@genesis_block, public_key)
-      signature = trx |> Blexchain.RSA.sign(private_key)
-
-      block = @genesis_block
-        |> Map.update!(:to, fn(_) -> public_key end)
-        |> Map.update!(:transaction, fn(_) -> trx end)
-        |> Map.update!(:signature, fn(_) -> signature end)
-      ConCache.put(:blockchain, :blocks, [block])
-
+      ConCache.put(:blockchain, :blocks, [Blexchain.Blockchain.build_genesis_block()])
       ConCache.put(:blockchain, :ports, [System.get_env("PORT")])
     else
       ConCache.put(:blockchain, :ports, [System.get_env("PORT"), System.get_env("PEER")])
