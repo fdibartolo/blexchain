@@ -37,21 +37,22 @@ defmodule Blexchain.Blockchain do
   end
 
   def add_to_chain(to, amount) do
-    prev_block_hash = ConCache.get(:blockchain, :blocks)
+    ConCache.get(:blockchain, :blocks)
       |> List.last |> Map.fetch(:own_hash) |> elem(1)
+      |> update_cache(to, amount)
+  end
 
+  defp update_cache(nil, _, _), do: {:error, 422, "Previous block hasnt been mined yet, try again in a few seconds"}
+  defp update_cache(prev_block_hash, to, amount) do
     block = build_block(to, amount)
       |> Map.update!(:prev_block_hash, fn(_) -> prev_block_hash end)
 
-    added = ConCache.update(:blockchain, :blocks, fn(b) ->
+    ConCache.update(:blockchain, :blocks, fn(b) ->
       blocks = b |> List.insert_at(-1, block)
       {:ok, blocks}
-    end)
-
-    cond do
-      prev_block_hash == nil -> {:error, 422, "Previous block hasnt been mined yet, try again in a few seconds"}
-      added != :ok -> {:error, 500, "Oops, something went wrong! Block could not be added to blockchain"}
-      true -> {:ok, "Block added successfully. It will be mined soon to assert validity"}
+    end) |> case do
+      :ok -> {:ok, "Block added successfully. It will be mined soon to assert validity"}
+      _ -> {:error, 500, "Oops, something went wrong! Block could not be added to blockchain"}
     end
   end
 
