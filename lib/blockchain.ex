@@ -10,7 +10,7 @@ defmodule Blexchain.Blockchain do
   end
 
   def find_nonce(block) do
-    message = [block.from, block.to, block.amount] |> Enum.join |> hash
+    message = [block.from, block.to, block.amount, block.prev_block_hash] |> Enum.join
     find_nonce(message, "startup nonce", false)
   end
 
@@ -21,7 +21,7 @@ defmodule Blexchain.Blockchain do
     find_nonce(message, n, valid_nonce?(message, n))
   end
 
-  defp valid_nonce?(message, nonce) do
+  def valid_nonce?(message, nonce) do
     nonce
       |> (&message <> &1).()
       |> hash

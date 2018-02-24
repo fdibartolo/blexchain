@@ -2,11 +2,11 @@ defmodule Blexchain.BlockchainTest do
   use ExUnit.Case
 
   @block %{
-    id: 1234,
     prev_block_hash: "SOME HASH", 
     from: "4000", 
     to: "4001", 
     amount: 100,
+    nonce: nil,
     own_hash: nil
   }
 
