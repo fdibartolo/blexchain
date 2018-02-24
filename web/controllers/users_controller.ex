@@ -16,7 +16,7 @@ defmodule Blexchain.UsersController do
     end
   end
 
-  defp newer_blockchain?(blockchain) when blockchain == nil, do: {false, nil}
+  defp newer_blockchain?(blockchain) when blockchain in [nil, []], do: {false, nil}
   defp newer_blockchain?(blockchain) do
     parsed = blockchain
       |> Poison.encode!
@@ -25,6 +25,7 @@ defmodule Blexchain.UsersController do
     cond do
       ConCache.get(:blockchain, :blocks) == nil -> {true, parsed}
       ConCache.get(:blockchain, :blocks) == parsed -> {false, nil}
+      !Blexchain.Validator.valid?(parsed) -> {false, nil}
       true -> {length(parsed) > length(ConCache.get(:blockchain, :blocks)), parsed}
     end
   end

@@ -16,7 +16,7 @@ defmodule Blexchain.MineScheduler do
       |> first_unmined_block
       |> mine_block
       |> case do
-        {:ok, mined_block} -> update_cache(mined_block)
+        {:ok, mined_block} -> validate_blockchain_with(mined_block)
         {:no_action, _} -> "No block needs to be mined"
       end
 
@@ -35,11 +35,24 @@ defmodule Blexchain.MineScheduler do
     {:ok, Blexchain.Blockchain.mine_block!(block)}
   end
 
-  defp update_cache(block) do
-    blocks = ConCache.get(:blockchain, :blocks)
+  defp validate_blockchain_with(mined_block) do
+    blockchain = ConCache.get(:blockchain, :blocks)
+      |> Enum.filter(fn(b) -> b.id != mined_block.id end)
+      |> Enum.concat([mined_block])
+
+    blockchain
+      |> Blexchain.Validator.valid?
+      |> case do
+        true -> ConCache.put(:blockchain, :blocks, blockchain)
+        false -> remove_from_blockchain(mined_block)
+      end
+  end
+
+  defp remove_from_blockchain(block) do
+    IO.puts "-> #{red()}#{bright()}Recent mined block invalidates the blockchain, it is now being destroyed!#{reset()}"
+
+    ConCache.get(:blockchain, :blocks)
       |> Enum.filter(fn(b) -> b.id != block.id end)
-      |> Enum.concat([block])
-    
-    ConCache.put(:blockchain, :blocks, blocks)
+      |> (&ConCache.put(:blockchain, :blocks, &1)).()
   end
 end
