@@ -9,7 +9,8 @@ defmodule Blexchain.Mixfile do
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
-      deps: deps()
+      deps: deps(),
+      test_coverage: [tool: ExCoveralls]
     ]
   end
 
@@ -38,7 +39,8 @@ defmodule Blexchain.Mixfile do
       {:cowboy, "~> 1.0"},
       {:con_cache, "~> 0.12.1"},
       {:httpotion, "~> 3.1.0"},
-      {:uuid, "~> 1.1"}
+      {:uuid, "~> 1.1"},
+      {:excoveralls, "~> 0.8", only: :test}
     ]
   end
 end
