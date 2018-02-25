@@ -5,6 +5,41 @@ defmodule Blexchain.UsersControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
+  describe "gossip" do
+    test "update own peer ports given peer node", %{conn: conn} do
+      ConCache.put(:blockchain, :ports, ["4000"])
+      post conn, gossip_path(conn, :gossip), %{"peers" => ["4001"], "blockchain" => nil}
+      assert ConCache.get(:blockchain, :ports) |> Enum.member?("4001")
+    end
+
+    test "keep own blockchain when peer blockchain is nil", %{conn: conn} do
+      ConCache.put(:blockchain, :ports, ["4000"])
+      ConCache.put(:blockchain, :blocks, [%{id: 123, from: nil, to: "4000", amount: 100}])
+      post conn, gossip_path(conn, :gossip), %{"peers" => ["4001"], "blockchain" => nil}
+      blockchain = ConCache.get(:blockchain, :blocks)
+      assert length(blockchain) == 1
+      assert blockchain |> List.first |> Map.fetch!(:id) == 123
+    end
+
+    test "keep peer blockchain when own is nil", %{conn: conn} do
+      ConCache.put(:blockchain, :ports, ["4000"])
+      ConCache.put(:blockchain, :blocks, nil)
+      post conn, gossip_path(conn, :gossip), %{"peers" => ["4001"], "blockchain" => [%{id: 234, from: nil, to: "4001", amount: 100}]}
+      blockchain = ConCache.get(:blockchain, :blocks)
+      assert length(blockchain) == 1
+      assert blockchain |> List.first |> Map.fetch!(:id) == 234
+    end
+
+    test "do nothing when peer blockchain and own are equal", %{conn: conn} do
+      ConCache.put(:blockchain, :ports, ["4000"])
+      ConCache.put(:blockchain, :blocks, [%{id: 234, from: nil, to: "4001", amount: 100}])
+      post conn, gossip_path(conn, :gossip), %{"peers" => ["4001"], "blockchain" => [%{id: 234, from: nil, to: "4001", amount: 100}]}
+      blockchain = ConCache.get(:blockchain, :blocks)
+      assert length(blockchain) == 1
+      assert blockchain |> List.first |> Map.fetch!(:id) == 234
+    end
+  end
+
   describe "transfer" do
     test "unable to transfer negtive amount", %{conn: conn} do
       conn = post conn, transfer_path(conn, :transfer), %{"amount" => -10, "from" => nil, "to" => nil}
