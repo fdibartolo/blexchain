@@ -11,4 +11,11 @@ defmodule Blexchain.Client do
     response = HTTPotion.get "#{@url}:#{peer_port}/public_key", [headers: @headers]
     response.body |> Poison.decode!
   end
+
+  def transfer(body) do
+    response = HTTPotion.post "#{@url}:#{body.from}/transfer", 
+      [body: body |> Poison.encode!, headers: @headers]
+
+    {response.status_code, response.body |> Poison.decode!}
+  end
 end
