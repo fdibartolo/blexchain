@@ -31,6 +31,8 @@ defmodule Blexchain.GossipScheduler do
 
   defp render_state(_, nil), do: IO.puts "#{yellow()}#{italic()}Waiting to sync node...#{reset()}"
   defp render_state(peers, blockchain) do
+    :io.format(:os.cmd('clear'))
+    IO.puts DateTime.utc_now |> DateTime.to_string
     IO.puts "-> My Port: #{yellow()}#{System.get_env("PORT")}#{reset()}"
     my_peers = peers |> Enum.join(" - ")
     IO.puts "-> My Peers: #{green()}#{my_peers}#{reset()}"
