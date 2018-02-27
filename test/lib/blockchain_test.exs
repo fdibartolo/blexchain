@@ -9,17 +9,18 @@ defmodule Blexchain.BlockchainTest do
     nonce: nil,
     own_hash: nil
   }
+  @pow_zeroes Application.get_env(:blexchain, :pow_zeroes)
 
   test "finding nonce generates hash with 3 leading zeroes and 64 chars long" do
     {_nonce, hash} = Blexchain.Blockchain.find_nonce(@block)
-    assert hash |> String.starts_with?("000")
+    assert hash |> String.starts_with?(@pow_zeroes)
     assert hash |> String.length == 64
   end
 
   test "mined block has a valid own hash" do
     ConCache.put(:blockchain, :blocks, [@block])
     mined_block = Blexchain.Blockchain.mine_block! @block
-    assert mined_block.own_hash |> String.starts_with?("000")
+    assert mined_block.own_hash |> String.starts_with?(@pow_zeroes)
   end
 
   test "unable to add new block when previous hasnt been mined yet" do
@@ -30,7 +31,7 @@ defmodule Blexchain.BlockchainTest do
   end
 
   test "able to add new block to the chain" do
-    block = @block |> Map.update!(:own_hash, fn(_) -> "OWN HASH" end)
+    block = @block |> Map.update!(:own_hash, fn(_) -> "OWN_HASH" end)
     ConCache.put(:blockchain, :blocks, [block])
     {status, msg} = Blexchain.Blockchain.add_to_chain("4001", 50)
     assert status == :ok
@@ -38,7 +39,7 @@ defmodule Blexchain.BlockchainTest do
   end
 
   test "newly added block prev hash equals previous block own hash" do
-    block = @block |> Map.update!(:own_hash, fn(_) -> "OWN HASH" end)
+    block = @block |> Map.update!(:own_hash, fn(_) -> "OWN_HASH" end)
     ConCache.put(:blockchain, :blocks, [block])
     Blexchain.Blockchain.add_to_chain("4001", 50)
     new_block = ConCache.get(:blockchain, :blocks) |> List.last

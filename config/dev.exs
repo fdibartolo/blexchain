@@ -29,6 +29,9 @@ config :blexchain, Blexchain.Endpoint,
 # 'Inject' real http client
 config :blexchain, http_client: Blexchain.Client
 
+# Proof of Work quantity of zeroes
+config :blexchain, pow_zeroes: "000"
+
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
 

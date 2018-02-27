@@ -2,6 +2,7 @@ defmodule Blexchain.ValidatorTest do
   use ExUnit.Case
 
   @block Blexchain.Blockchain.build_block("4001", 1000)
+  @pow_zeroes Application.get_env(:blexchain, :pow_zeroes)
 
   describe "transaction" do
     test "valid for the genesis transaction" do
@@ -25,7 +26,7 @@ defmodule Blexchain.ValidatorTest do
 
     test "invalid when data is hacked after mined" do
       mined_block = @block |> Blexchain.Blockchain.mine_block!
-      assert mined_block.own_hash |> String.starts_with?("000")
+      assert mined_block.own_hash |> String.starts_with?(@pow_zeroes)
       refute mined_block 
         |> Map.update!(:nonce, fn(_) -> "SOME_NONCE" end)
         |> Blexchain.Validator.valid?

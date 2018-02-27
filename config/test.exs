@@ -9,5 +9,8 @@ config :blexchain, Blexchain.Endpoint,
 # 'Inject' fake http client
 config :blexchain, http_client: Blexchain.FakeClient
 
+# Proof of Work quantity of zeroes (so tests run faster)
+config :blexchain, pow_zeroes: "0"
+
 # Print only warnings and errors during test
 config :logger, level: :warn

@@ -1,6 +1,7 @@
 defmodule Blexchain.Blockchain do
   @alphabet for n <- ?0..?Z, do: << n :: utf8 >>
   @http_client Application.get_env(:blexchain, :http_client)
+  @pow_zeroes Application.get_env(:blexchain, :pow_zeroes)
 
   def mine_block!(block) do
     {nonce, hash} = find_nonce(block)
@@ -25,7 +26,7 @@ defmodule Blexchain.Blockchain do
     nonce
       |> (&message <> &1).()
       |> hash
-      |> String.starts_with?("000")
+      |> String.starts_with?(@pow_zeroes)
   end
 
   defp hash(contents), do: :crypto.hash(:sha256, contents) |> Base.encode16
