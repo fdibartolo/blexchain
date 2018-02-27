@@ -40,7 +40,7 @@ defmodule Blexchain.Validator do
   defp compute_balances([block|blocks], balances) do
     updated_balances = balances
       |> Map.update(block.to, block.amount, &(&1 + block.amount))
-      |> Map.update!(block.from, &(&1 - block.amount))
+      |> Map.update(block.from, -block.amount, &(&1 - block.amount))
 
     case updated_balances |> Map.values |> valid_amounts? do
       true -> compute_balances(blocks, updated_balances)
