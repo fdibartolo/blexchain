@@ -41,7 +41,7 @@ defmodule Blexchain.Mixfile do
       {:con_cache, "~> 0.12.1"},
       {:httpotion, "~> 3.1.0"},
       {:uuid, "~> 1.1"},
-      {:excoveralls, "~> 0.8", only: :test}
+      {:excoveralls, "0.10.3", only: :test}
     ]
   end
 end
