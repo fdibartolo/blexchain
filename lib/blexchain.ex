@@ -6,8 +6,6 @@ defmodule Blexchain do
   def start(_type, _args) do
     import Supervisor.Spec
 
-    if System.get_env("PORT") == nil, do: IO.puts "PORT is not set! Do so at start up via 'PORT=4000 mix phx.server'"
-
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
