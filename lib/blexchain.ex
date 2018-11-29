@@ -15,7 +15,7 @@ defmodule Blexchain do
       # Start your own worker by calling: Blexchain.Worker.start_link(arg1, arg2, arg3)
       # worker(Blexchain.Worker, [arg1, arg2, arg3]),
       
-      # create in-memory storage to keep peer ports and blocks within the network
+      # create in-memory storage to keep peers and blocks within the network
       supervisor(ConCache, [[], [name: :blockchain]]),
 
       # schedule sync up nodes
@@ -49,9 +49,9 @@ defmodule Blexchain do
 
     if System.get_env("PEER") == nil do
       ConCache.put(:blockchain, :blocks, [Blexchain.Blockchain.build_genesis_block()])
-      ConCache.put(:blockchain, :ports, [System.get_env("PORT")])
+      ConCache.put(:blockchain, :peers, [Application.get_env(:blexchain, :host_ip)])
     else
-      ConCache.put(:blockchain, :ports, [System.get_env("PORT"), System.get_env("PEER")])
+      ConCache.put(:blockchain, :peers, [Application.get_env(:blexchain, :host_ip), System.get_env("PEER")])
     end
   end
 end
