@@ -10,29 +10,40 @@ This development is inspired on Haseeb Qureshi Ruby's implementation:
 
 ## As for this code
 
-### Start the network
+### Build the docker image
 
-To start the network (genesis node), specify the `PORT` it will be listening on, i.e.
+Considering you are in the root directory of the repo, then
 
-`PORT=4000 mix phx.server`
+`$ docker build -t <IMAGE NAME> .`
 
-And then, to join consecutive nodes to the network, a peer port needs to be specified, i.e.
+Finally, create the network the future nodes will share, let's name it _blexnet_
 
-  `PORT=4001 PEER=4000 mix phx.server`
+`$ docker network create blexnet`
 
-  `PORT=4002 PEER=4001 mix phx.server`
+### Start the blockchain network
 
-  `PORT=4003 PEER=4000 mix phx.server`
+To start the network (genesis node), just start the first container, i.e.
 
-`PEER` can be __any__ port already existing in the network.
+`$ docker run --name node --network blexnet <IMAGE NAME>`
+
+And then, to join consecutive nodes to the network, a peer ip address needs to be specified, i.e.
+
+`$ docker run --name node2 --network blexnet -e PEER=172.18.0.2 <IMAGE NAME>`
+
+`$ docker run --name node3 --network blexnet -e PEER=172.18.0.3 <IMAGE NAME>`
+
+`$ docker run --name node4 --network blexnet -e PEER=172.18.0.2 <IMAGE NAME>`
+
+`PEER` can be __any__ peer ip address already existing in the network.
 
 ### Submit a transaction
 
 Even though any http client can be use to post to the api to submit a transaction, there is a mix task available for that as well (easier, right?). All three arguments must be specified, i.e.
 
-  `$ mix blexchain.transfer from:4000 to:4001 amount:100`
+`$ docker exec node3 mix blexchain.transfer from:172.18.0.2 to:172.18.0.3 amount:100`
 
-`from` and `to` are the ports whose nodes are listening on.
+`from` and `to` are the peer ip addresses whose nodes are listening on.
+`node3` can actually be __any__ node in the network
 
 ---
 
