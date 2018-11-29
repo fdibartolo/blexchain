@@ -1,19 +1,18 @@
 defmodule Blexchain.Client do
-  @url "http://localhost"
   @headers ["Content-Type": "application/json"]
 
-  def gossip_with_peer(port, peer_ports, blockchain) do
-    body = %{peers: peer_ports, blockchain: blockchain} |> Poison.encode!
-    HTTPotion.post "#{@url}:#{port}/gossip", [body: body, headers: @headers]
+  def gossip_with_peer(peer, peers, blockchain) do
+    body = %{peers: peers, blockchain: blockchain} |> Poison.encode!
+    HTTPotion.post "http://#{peer}:#{System.get_env("PORT")}/gossip", [body: body, headers: @headers]
   end
 
-  def public_key_of(peer_port) do
-    response = HTTPotion.get "#{@url}:#{peer_port}/public_key", [headers: @headers]
+  def public_key_of(peer) do
+    response = HTTPotion.get "http://#{peer}:#{System.get_env("PORT")}/public_key", [headers: @headers]
     response.body |> Poison.decode!
   end
 
   def transfer(body) do
-    response = HTTPotion.post "#{@url}:#{body.from}/transfer", 
+    response = HTTPotion.post "http://#{body.from}:#{System.get_env("PORT")}/transfer", 
       [body: body |> Poison.encode!, headers: @headers]
 
     {response.status_code, response.body |> Poison.decode!}

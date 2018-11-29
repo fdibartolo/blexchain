@@ -2,7 +2,7 @@ defmodule Blexchain.UsersController do
   use Blexchain.Web, :controller
 
   def gossip(conn, %{"peers" => p, "blockchain" => b}) do
-    peer_ports = ConCache.get(:blockchain, :ports) ++ p
+    peers = ConCache.get(:blockchain, :peers) ++ p
       |> Enum.uniq
 
     case newer_blockchain?(b) do 
@@ -10,7 +10,7 @@ defmodule Blexchain.UsersController do
       {false, _} -> "Blockchain up to date"
     end
 
-    case ConCache.put(:blockchain, :ports, peer_ports) do
+    case ConCache.put(:blockchain, :peers, peers) do
       :ok -> json conn, "Ok!"
       _ -> json (conn |> put_status(500)), "Something went wrong!"
     end
@@ -43,7 +43,7 @@ defmodule Blexchain.UsersController do
     end
   end
 
-  defp invalid_peer?(peer), do: ConCache.get(:blockchain, :ports) |> Enum.member?(peer) |> (&not(&1)).()
+  defp invalid_peer?(peer), do: ConCache.get(:blockchain, :peers) |> Enum.member?(peer) |> (&not(&1)).()
 
   def public_key(conn, %{}) do
     {status, value} = get_key ConCache.get(:blockchain, :public_key)

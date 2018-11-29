@@ -15,11 +15,12 @@ defmodule Blexchain.GossipScheduler do
 
   def handle_info(:work, state) do
     mined_blocks = get_mined_blocks ConCache.get(:blockchain, :blocks)
-    ConCache.get(:blockchain, :ports)
-      |> List.delete(System.get_env("PORT"))
-      |> Enum.each(fn(p) -> @http_client.gossip_with_peer(p, ConCache.get(:blockchain, :ports), mined_blocks) end)
-
-    render_state(ConCache.get(:blockchain, :ports), ConCache.get(:blockchain, :blocks))
+    
+    ConCache.get(:blockchain, :peers)
+      |> List.delete(Application.get_env(:blexchain, :host_ip))
+      |> Enum.each(fn(p) -> @http_client.gossip_with_peer(p, ConCache.get(:blockchain, :peers), mined_blocks) end)
+    
+    render_state(ConCache.get(:blockchain, :peers), ConCache.get(:blockchain, :blocks))
     schedule_work() # Reschedule once again
     {:noreply, state}
   end
@@ -33,7 +34,7 @@ defmodule Blexchain.GossipScheduler do
   defp render_state(peers, blockchain) do
     :io.format(:os.cmd('clear'))
     IO.puts DateTime.utc_now |> DateTime.to_string
-    IO.puts "-> My Port: #{yellow()}#{System.get_env("PORT")}#{reset()}"
+    IO.puts "-> My Node: #{yellow()}#{Application.get_env(:blexchain, :host_ip)}#{reset()}"
     my_peers = peers |> Enum.join(" - ")
     IO.puts "-> My Peers: #{green()}#{my_peers}#{reset()}"
     blocks = blockchain
