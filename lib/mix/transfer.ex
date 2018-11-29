@@ -12,7 +12,7 @@ defmodule Mix.Tasks.Blexchain.Transfer do
 
     case body |> Map.keys |> Enum.sort == [:amount, :from, :to] do
       true -> request(body)
-      false -> IO.puts "All three args must be provided; i.e 'mix blexchain.transfer from:1234 to:2345 amount:100'"
+      false -> IO.puts "All three args must be provided; i.e 'docker exec <CONTAINER> mix blexchain.transfer from:1.2.3.4 to:2.3.4.5 amount:100'"
     end
   end
 
