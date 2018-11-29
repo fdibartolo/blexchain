@@ -13,6 +13,8 @@ config :blexchain, Blexchain.Endpoint,
   pubsub: [name: Blexchain.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
+config :blexchain, host_ip: System.cmd("hostname", ["-i"]) |> elem(0) |> String.trim
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
