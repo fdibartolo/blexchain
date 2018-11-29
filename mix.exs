@@ -36,7 +36,7 @@ defmodule Blexchain.Mixfile do
     [
       {:phoenix, "~> 1.3.0-rc"},
       {:phoenix_pubsub, "~> 1.0"},
-      {:gettext, "~> 0.11"},
+      {:gettext, "0.16.1"},
       {:cowboy, "~> 1.0"},
       {:con_cache, "~> 0.12.1"},
       {:httpotion, "~> 3.1.0"},
