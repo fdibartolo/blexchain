@@ -38,11 +38,12 @@ And then, to join consecutive nodes to the network, a peer ip address needs to b
 
 ### Submit a transaction
 
-Even though any http client can be use to post to the api to submit a transaction, there is a mix task available for that as well (easier, right?). All three arguments must be specified, i.e.
+Even though any http client can be used to make post requests to the api in order to submit transactions, there is a mix task available for that as well (easier, right?). All three arguments must be specified, i.e.
 
 `$ docker exec node3 mix blexchain.transfer from:172.18.0.2 to:172.18.0.3 amount:100`
 
-`from` and `to` are the peer ip addresses whose nodes are listening on.
+`from` and `to` are the peer ip addresses whose nodes are running on.
+
 `node3` can actually be __any__ node in the network
 
 ---
