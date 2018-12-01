@@ -1,4 +1,4 @@
-FROM elixir:1.5-alpine
+FROM elixir:1.5
 
 ENV PORT 4000 
 
