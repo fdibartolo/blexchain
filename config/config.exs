@@ -13,6 +13,9 @@ config :blexchain, Blexchain.Endpoint,
   pubsub: [name: Blexchain.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
+# Use Poison for JSON parsing in Phoenix
+config :phoenix, :json_library, Poison
+
 config :blexchain, host_ip: System.cmd("hostname", ["-i"]) |> elem(0) |> String.trim
 
 # Configures Elixir's Logger
