@@ -1,4 +1,8 @@
-FROM elixir:1.7.4
+FROM elixir:1.7.4-alpine
+
+RUN apk update && \
+  apk add --no-cache openssl && \
+  rm -rf /var/cache/apk/*
 
 ENV PORT 4000 
 
