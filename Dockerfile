@@ -1,4 +1,4 @@
-FROM elixir:1.5
+FROM elixir:1.7.4
 
 ENV PORT 4000 
 
