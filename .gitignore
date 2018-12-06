@@ -17,3 +17,6 @@ erl_crash.dump
 
 # Coverage reports
 /cover
+
+# local keys
+*.pem
